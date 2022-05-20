@@ -1,0 +1,1 @@
+Siphon, passive skill, the player will siphon charge when he is close to an enemy.

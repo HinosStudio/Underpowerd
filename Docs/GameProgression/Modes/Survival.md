@@ -1,0 +1,1 @@
+Survival: Try to survive as long as possible in levels you've finished in the campaign.

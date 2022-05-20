@@ -1,0 +1,1 @@
+Overcharge, passive skill, the player can charge past their max limit.

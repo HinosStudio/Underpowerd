@@ -1,0 +1,1 @@
+Trap, active skill, puts down a device that will damage enemies when close, type of damage and duration depends on the trap.

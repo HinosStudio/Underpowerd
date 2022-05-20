@@ -1,0 +1,1 @@
+Charge rifle, charges up to fire a strong blast that goes through enemies in a line.

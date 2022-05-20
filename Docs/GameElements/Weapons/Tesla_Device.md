@@ -1,0 +1,1 @@
+Tesla device, will chain lightning on enemies that are close together, short range.

@@ -1,0 +1,1 @@
+Campaign: Story mode where the player will play through scripted levels.

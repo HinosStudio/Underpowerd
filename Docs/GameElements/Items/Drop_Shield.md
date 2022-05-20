@@ -1,0 +1,1 @@
+Drop shield, places a small shield on the ground.

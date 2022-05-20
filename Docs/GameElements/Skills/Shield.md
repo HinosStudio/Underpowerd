@@ -1,0 +1,1 @@
+Shield, active skill, when activated the player will take less damage.

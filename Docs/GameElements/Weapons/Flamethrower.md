@@ -1,0 +1,1 @@
+Flamethrower, throws a flame in a cone shape that will overheat enemies, the flamethrower itself does little to no damage, but the overheat effect will compensate for that.

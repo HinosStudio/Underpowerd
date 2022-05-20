@@ -1,0 +1,1 @@
+Single use charge, will charge the player for a small amount.

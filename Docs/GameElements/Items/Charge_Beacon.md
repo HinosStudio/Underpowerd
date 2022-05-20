@@ -1,0 +1,1 @@
+Beacon, a small charge station players can place and connect to, when damaged it will explode.
