@@ -2,10 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Generator : MonoBehaviour, IAreaCallback, IInteractable {
+public class Generator : MonoBehaviour, IAreaCallback, IInteractable, IGameEventListener {
+    [SerializeField] private GameEvent interactionEvent;
 
     private Battery m_Battery;
     private Battery m_ConnectedSrc;
+
+    private void OnDisable() {
+        interactionEvent?.Unregister(this);
+    }
 
     private void Awake() {
         m_Battery = GetComponent<Battery>();
@@ -22,11 +27,15 @@ public class Generator : MonoBehaviour, IAreaCallback, IInteractable {
     }
 
     public void OnAreaEnter(GameObject obj) {
-        obj.GetComponent<PlayerController>()?.Register(this);
+        interactionEvent?.Register(this);
     }
 
     public void OnAreaExit(GameObject obj) {
-        obj.GetComponent<PlayerController>()?.Unregister(this);
+        interactionEvent?.Unregister(this);
         m_ConnectedSrc = null;
+    }
+
+    public void OnEventRaised(GameEvent e, GameObject src) {
+        Debug.Log($"{this.name}: started interaction", this);
     }
 }

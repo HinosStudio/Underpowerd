@@ -18,25 +18,15 @@ class Battery {
     event Depleted;
     event Augmented;
 
-    public Battery(float initial, float maxCharge, float maxOverCharge, float decay = 0){
+    public Battery(float initial, float maxCharge, float maxOverCharge, float decay = 0) { }
 
-    }
+    public void AddCharge(float value) { }
 
-    public void AddCharge(float value){
+    public void RemoveCharge(float value) { }
 
-    }
+    public static void TransferCharge(Battery src, Battery target, float value) { }
 
-    public void RemoveCharge(float value){
-
-    }
-
-    public static void TransferCharge(Battery src, Battery target, float value){
-
-    }
-
-    public static void NormalizeCharge(Battery src, Battery target){
-
-    }
+    public static void NormalizeCharge(Battery src, Battery target) { }
 }
 
 ```

@@ -1,47 +1,44 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(Battery))]
+[RequireComponent(typeof(InteractionController))]
 public partial class PlayerController : MonoBehaviour {
+    [SerializeField] private CharacterController characterController;
 
-    //Moving
-    [SerializeField] private float acceleration = 10.0f;
-    [SerializeField] private float friction = 15.0f;
-    [SerializeField] private float maxSpeed = 5.0f;
+    [Header("Lives")]
+    [SerializeField] private int lives = 0;
+    [SerializeField] private TMP_Text livesText;
+
     private Vector2 m_InputDirection = Vector2.zero;
-    private Vector3 m_TargetDirection = new Vector3();
-    private Rigidbody m_Rigidbody;
+    
+    private InteractionController m_InteractionController;
 
-    private Battery m_Battery;
+    private void OnEnable() {
+        characterController.OnDeathEvent += Handle_Player_Death;
+    }
+
+    private void OnDisable() {
+        characterController.OnDeathEvent -= Handle_Player_Death;
+    }
 
     private void Awake() {
-        m_Rigidbody = GetComponent<Rigidbody>();
-        m_Battery = GetComponent<Battery>();
+        m_InteractionController = GetComponent<InteractionController>();
+    }
+
+    private void Start() {
+        livesText.text = $"Lives: {lives}";
     }
 
     void Update() {
         Handle_Input();
 
-        if (Input.GetKeyDown(KeyCode.Z)) {
-            StartInteraction();
-        }
+        if (Input.GetKeyDown(KeyCode.Z)) 
+            m_InteractionController.StartInteraction();
     }
 
     private void FixedUpdate() {
-        m_TargetDirection.Set(m_InputDirection.x, 0.0f, m_InputDirection.y);
-
-        var moving = m_InputDirection != Vector2.zero;
-        var targetVelocity = moving ? m_TargetDirection * maxSpeed : Vector3.zero;
-        var targetAcceleration = moving ? acceleration : friction;
-
-        m_Rigidbody.velocity = Vector3.MoveTowards(m_Rigidbody.velocity, targetVelocity, targetAcceleration * Time.deltaTime);
-    }
-
-    private void OnGUI() {
-        GUI.Box(new Rect(10, 10, 100, 100), "Player");
-        GUI.Label(new Rect(10, 40, 100, 20), $"{m_Battery.Charge:n2}%");
+        characterController.Move(m_InputDirection);
     }
 
     private void Handle_Input() {
@@ -51,36 +48,10 @@ public partial class PlayerController : MonoBehaviour {
         m_InputDirection = Vector2.ClampMagnitude(m_InputDirection, 1.0f);
     }
 
-#region interaction
+    private void Handle_Player_Death() {
+        --lives;
+        if (lives > 0)
+            Debug.Log("Respawn character");
 
-    private readonly List<IInteractable> m_Interactables = new List<IInteractable>();
-
-    public void Register(IInteractable interactable) {
-        if (!m_Interactables.Contains(interactable)) 
-            m_Interactables.Add(interactable);
     }
-
-    public void Unregister(IInteractable interactable) {
-        if (m_Interactables.Contains(interactable))
-            m_Interactables.Remove(interactable);
-    }
-
-    private void StartInteraction() {
-        if (m_Interactables.Count == 0) return;
-
-        IInteractable target = m_Interactables[0];
-
-        if (m_Interactables.Count > 1) {
-            // var shortestDistance = float.MaxValue;
-
-            for (int i = 1; i < m_Interactables.Count; ++i) {
-                //distance check
-            }
-        }
-
-        target.Interact(this.gameObject);
-    }
-
-    #endregion
-
 }

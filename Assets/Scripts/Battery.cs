@@ -1,38 +1,45 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.Events;
 
 public class Battery : MonoBehaviour {
     [SerializeField] private float initialCharge = 50.0f;
     [SerializeField] private float maxCharge = 100.0f;
 
-    // TODO: Add decay
-    // [SerializeField] private float decay = 0;
-
     // TODO: Add overcharge
     // [SerializeField] private float overcharge = 0;
 
-    private float m_Charge;
+    private bool depleted = false;
+    public float Charge { get; private set; }
 
-    public float Charge => m_Charge;
+    public UnityEvent OnBatteryDepleted = new UnityEvent();
+    public UnityEvent OnBatteryAugmented = new UnityEvent();
 
-    public float ToFull => Mathf.Max(0, maxCharge - m_Charge);
+    public float ToFull => Mathf.Max(0, maxCharge - Charge);
 
     private void Awake() {
-        m_Charge = initialCharge;
+        Charge = initialCharge;
     }
 
-    private void AddCharge(float value) {
-        m_Charge += value;
-        m_Charge = Mathf.Min(m_Charge, maxCharge);
+    public void AddCharge(float value) {
+        Charge += value;
+        Charge = Mathf.Min(Charge, maxCharge);
     }
 
-    private float RemoveCharge(float value) {
+    public float RemoveCharge(float value) {
         if(value < 0) {
             Debug.LogError("cannot remove negative value", this);
             return 0;
         }
 
-        var res = Mathf.Min(m_Charge, value);
-        m_Charge -= res;
+        var res = Mathf.Min(Charge, value);
+        Charge -= res;
+
+        if (!depleted && Charge <= 0) {
+            depleted = true;
+            OnBatteryDepleted.Invoke();
+        }
+
         return res;
     }
 
@@ -40,5 +47,9 @@ public class Battery : MonoBehaviour {
         var maxCharge = Mathf.Min(targetSrc.ToFull, value);
         var charge = src.RemoveCharge(maxCharge);
         targetSrc.AddCharge(charge);
+    }
+
+    public static void NormalizeCharge(Battery src, Battery target) {
+
     }
 }
