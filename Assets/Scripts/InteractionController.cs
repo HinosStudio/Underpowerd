@@ -2,10 +2,19 @@
 using UnityEngine;
 
 public class InteractionController : MonoBehaviour {
-    [SerializeField] private GameEvent interactionEvent;
+    private readonly List<IInteractable> m_Interactables = new List<IInteractable>();
+
+    public void Register(IInteractable interactable) {
+        if (!m_Interactables.Contains(interactable))
+            m_Interactables.Add(interactable);
+    }
+
+    public void Unregister(IInteractable interactable) {
+        if (m_Interactables.Contains(interactable))
+            m_Interactables.Remove(interactable);
+    }
 
     public void StartInteraction() {
-        /*
         if (m_Interactables.Count == 0) return;
 
         IInteractable target = m_Interactables[0];
@@ -19,8 +28,5 @@ public class InteractionController : MonoBehaviour {
         }
 
         target.Interact(this.gameObject);
-        */
-
-        interactionEvent.Raise(this.gameObject);
     }
 }

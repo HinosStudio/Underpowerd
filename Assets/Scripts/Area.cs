@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public interface IAreaCallback {
     void OnAreaEnter(GameObject obj);
@@ -6,22 +7,17 @@ public interface IAreaCallback {
 }
 
 public class Area : MonoBehaviour {
-    [SerializeField][RequireInterface(typeof(IAreaCallback))]
-    private Object callBackObj;
+    [System.Serializable]
+    public class AreaUnityEvent : UnityEvent<GameObject> {}
 
-    public IAreaCallback CallBackObject {
-        get => callBackObj as IAreaCallback;
-    }
+    public AreaUnityEvent areaEnter = new AreaUnityEvent();
+    public AreaUnityEvent areaExit = new AreaUnityEvent();
 
     public void OnTriggerEnter(Collider other) {
-        CallBackObject?.OnAreaEnter(other.gameObject);
+        areaEnter.Invoke(other.gameObject);
     }
 
     private void OnTriggerExit(Collider other) {
-        CallBackObject?.OnAreaExit(other.gameObject);
-    }
-
-    public void SetCallbackObject(Object obj) {
-        callBackObj = obj;
+        areaExit.Invoke(other.gameObject);
     }
 }

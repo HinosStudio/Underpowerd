@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Generator : MonoBehaviour, IAreaCallback, IInteractable, IGameEventListener {
+public class Generator : MonoBehaviour, IInteractable, IGameEventListener {
     [SerializeField] private GameEvent interactionEvent;
 
     private Battery m_Battery;

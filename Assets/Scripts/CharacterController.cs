@@ -3,8 +3,9 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Battery))]
+[RequireComponent(typeof(InteractionController))]
 [RequireComponent(typeof(Connector))]
-public class CharacterController : MonoBehaviour {
+public partial class CharacterController : MonoBehaviour {
     [SerializeField] private float maxSpeed = 5.0f;
     [SerializeField] private float acceleration = 10.0f;
     [SerializeField] private float friction = 15.0f;
@@ -20,6 +21,7 @@ public class CharacterController : MonoBehaviour {
     private Transform m_Transform;
     private Rigidbody m_Rigidbody;
     private Battery m_Battery;
+    private InteractionController m_InteractionController;
     private Connector m_Connector;
 
     public event Action OnDeathEvent;
@@ -36,6 +38,7 @@ public class CharacterController : MonoBehaviour {
         m_Transform = GetComponent<Transform>();
         m_Rigidbody = GetComponent<Rigidbody>();
         m_Battery = GetComponent<Battery>();
+        m_InteractionController = GetComponent<InteractionController>();
         m_Connector = GetComponent<Connector>();
     }
 
@@ -72,6 +75,6 @@ public class CharacterController : MonoBehaviour {
     }
 
     public void StartInteraction() {
-
+        m_InteractionController.StartInteraction();
     }
 }

@@ -11,8 +11,6 @@ public partial class PlayerController : MonoBehaviour {
     [SerializeField] private TMP_Text livesText;
 
     private Vector2 m_InputDirection = Vector2.zero;
-    
-    private InteractionController m_InteractionController;
 
     private void OnEnable() {
         characterController.OnDeathEvent += Handle_Player_Death;
@@ -23,7 +21,6 @@ public partial class PlayerController : MonoBehaviour {
     }
 
     private void Awake() {
-        m_InteractionController = GetComponent<InteractionController>();
     }
 
     private void Start() {
@@ -34,7 +31,7 @@ public partial class PlayerController : MonoBehaviour {
         Handle_Input();
 
         if (Input.GetKeyDown(KeyCode.Z)) 
-            m_InteractionController.StartInteraction();
+            characterController.StartInteraction();
     }
 
     private void FixedUpdate() {
