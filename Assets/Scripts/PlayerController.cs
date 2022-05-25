@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
-[RequireComponent(typeof(InteractionController))]
 public partial class PlayerController : MonoBehaviour {
     [SerializeField] private CharacterController characterController;
 

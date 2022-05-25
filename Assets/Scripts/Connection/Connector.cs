@@ -1,32 +1,39 @@
 ﻿using UnityEngine;
 
-public class Connector : MonoBehaviour, IConnectable {
-    [SerializeField] private Vector3 connectionPoint = Vector3.up;
+public class Connector : MonoBehaviour {
+    [SerializeField] private Transform connectionPoint;
+    [SerializeField] private float maxDistance = 2.0f;
 
-    private Connection m_Connection;
-    private Transform m_Transform;
+    private ConnectionPoint m_Connection;
 
-    public Vector3 ConnectionPoint => m_Transform.position + connectionPoint;
-
-    public GameObject ConnectionObject => this.gameObject;
+    public Transform ConnectionPoint => connectionPoint;
+    public ConnectionPoint Connection => m_Connection;
 
     private void OnDisable() {
-        m_Connection = null;
+        Disconnect();
     }
 
-    private void Awake() {
-        m_Transform = GetComponent<Transform>();
+    private void Update() {
+        if (m_Connection != null) {
+            var distance = Vector3.Distance(connectionPoint.position, m_Connection.Point);
+            if (distance > maxDistance) {
+                Disconnect();
+            }
+        }
     }
 
-    public void Connect(IConnectable other) {
-        m_Connection = new Connection(this, other);
+    public void ConnectToPoint(ConnectionPoint other) {
+        if (m_Connection != null) {
+            Disconnect();
+        }
+
+        if (other.AddConnector(this)) {
+            m_Connection = other;
+        }
     }
 
-    public void OnConnect(IConnectable other) {
-        
-    }
-
-    public void OnDisconnect(IConnectable other) {
+    public void Disconnect() {
+        m_Connection?.RemoveConnector(this);
         m_Connection = null;
     }
 }

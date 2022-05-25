@@ -1,15 +1,10 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Battery))]
 [RequireComponent(typeof(InteractionController))]
 [RequireComponent(typeof(Connector))]
-public partial class CharacterController : MonoBehaviour {
-    [SerializeField] private float maxSpeed = 5.0f;
-    [SerializeField] private float acceleration = 10.0f;
-    [SerializeField] private float friction = 15.0f;
-
+public class CharacterController : MonoBehaviour {
     [SerializeField] private float consumption;
 
     [SerializeField] private ProgressBar chargeProgressBar;
@@ -19,7 +14,6 @@ public partial class CharacterController : MonoBehaviour {
     // private bool invincible;
 
     private Transform m_Transform;
-    private Rigidbody m_Rigidbody;
     private Battery m_Battery;
     private InteractionController m_InteractionController;
     private Connector m_Connector;
@@ -36,7 +30,6 @@ public partial class CharacterController : MonoBehaviour {
 
     private void Awake() {
         m_Transform = GetComponent<Transform>();
-        m_Rigidbody = GetComponent<Rigidbody>();
         m_Battery = GetComponent<Battery>();
         m_InteractionController = GetComponent<InteractionController>();
         m_Connector = GetComponent<Connector>();
@@ -60,18 +53,7 @@ public partial class CharacterController : MonoBehaviour {
     }
 
     public void Move(Vector2 input) {
-        if (dead) return;
 
-        var targetVelocity = Vector3.zero;
-        var targetAcceleration = friction;
-        
-        if(input != Vector2.zero) {
-            targetVelocity.x = input.x * maxSpeed;
-            targetVelocity.z = input.y * maxSpeed;
-            targetAcceleration = acceleration;
-        }
-
-        m_Rigidbody.velocity = Vector3.MoveTowards(m_Rigidbody.velocity, targetVelocity, targetAcceleration * Time.deltaTime);
     }
 
     public void StartInteraction() {

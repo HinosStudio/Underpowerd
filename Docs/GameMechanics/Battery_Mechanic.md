@@ -20,10 +20,12 @@ class Battery {
 
     public Battery(float initial, float maxCharge, float maxOverCharge, float decay = 0) { }
 
+    // Methods
     public void AddCharge(float value) { }
 
     public void RemoveCharge(float value) { }
 
+    // Procedures
     public static void TransferCharge(Battery src, Battery target, float value) { }
 
     public static void NormalizeCharge(Battery src, Battery target) { }

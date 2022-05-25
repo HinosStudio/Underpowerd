@@ -21,13 +21,16 @@ class Connection {
     }
 }
 
-interface IConnectable {
-    Vector3 ConnectionPoint {get;}
-
-    void OnConnect(IConnectable other);
-    void OnDisconnect(IConnectable other);
+interface IConnectCallback {
+    void OnConnect(GameObject other);
+    void OnDisconnect(GameObject other);
 }
 
+class Connector : MonoBehaviour {
+    private GameObject m_Other;
+
+    public void Connect(GameObject other) { }
+}
 
 
 ```

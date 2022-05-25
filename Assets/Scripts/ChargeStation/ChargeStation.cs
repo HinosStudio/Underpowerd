@@ -1,37 +1,22 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-[RequireComponent(typeof(Battery))]
-public abstract class ChargeStation : MonoBehaviour, IConnectable {
-    [SerializeField] private Vector3 connectionPoint = Vector3.zero;
+public class ChargeStation : MonoBehaviour, IConnectCallback {
 
-    protected Battery targetBattery;
-    
-    protected Battery m_Battery;
+    private readonly Dictionary<Connector, Battery> m_ConnectedBatteries = new Dictionary<Connector, Battery>();
 
-    public Vector3 ConnectionPoint => connectionPoint;
-    public GameObject ConnectionObject => this.gameObject;
-    public float Charge => m_Battery.Charge;
+    public IEnumerable<Battery> Batteries => m_ConnectedBatteries.Values;
 
-    private void OnDisable() {
-        targetBattery = null;
+    public void OnConnect(Connector other) {
+        var battery = other.GetComponent<Battery>();
+        if (battery != null) {
+            m_ConnectedBatteries.Add(other, battery);
+        }
     }
 
-    private void Awake() {
-        m_Battery = GetComponent<Battery>();
-    }
-
-    private void Update() {
-        if (targetBattery != null)
-            TransferCharge();
-    }
-
-    public abstract void TransferCharge();
-
-    public void OnConnect(IConnectable other) {
-        targetBattery = other.ConnectionObject.GetComponent<Battery>();
-    }
-
-    public void OnDisconnect(IConnectable other) {
-        targetBattery = null;
+    public void OnDisconnect(Connector other) {
+        if (m_ConnectedBatteries.ContainsKey(other)) {
+            m_ConnectedBatteries.Remove(other);
+        }
     }
 }
