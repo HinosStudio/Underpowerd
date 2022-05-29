@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
+[RequireComponent(typeof(CharacterController))]
 public partial class PlayerController : MonoBehaviour {
     [SerializeField] private CharacterController characterController;
 
@@ -10,6 +11,8 @@ public partial class PlayerController : MonoBehaviour {
     [SerializeField] private TMP_Text livesText;
 
     private Vector2 m_InputDirection = Vector2.zero;
+
+    private CharacterController m_CharacterController;
 
     private void OnEnable() {
         characterController.OnDeathEvent += Handle_Player_Death;
@@ -20,6 +23,7 @@ public partial class PlayerController : MonoBehaviour {
     }
 
     private void Awake() {
+        m_CharacterController = GetComponent<CharacterController>();
     }
 
     private void Start() {
