@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody))]
-public class MovingCharacter : MonoBehaviour {
+[RequireComponent(typeof(Character), typeof(Rigidbody))]
+public class RigidMovingCharacter : MonoBehaviour {
     [SerializeField] private float maxSpeed = 5.0f;
     [SerializeField] private float maxAcceleration = 10.0f;
     [SerializeField] private float maxGroundAngle = 25.0f;
@@ -15,21 +16,23 @@ public class MovingCharacter : MonoBehaviour {
     [SerializeField] private float maxStairAngle = 50.0f;
     [SerializeField] private LayerMask stairMask = -1;
 
-    private Vector2 m_InputDirection = Vector2.zero;
     private Vector3 m_Velocity = Vector3.zero;
     private Vector3 m_DesiredVelocity = Vector3.zero;
+    private Vector3 m_DesiredRotation = Vector3.forward;
 
     private float m_MinGroundDotProduct = 0.0f, m_MinStairDotProduct = 0.0f;
     private int m_StepsSinceLastGrounded = 0;
     private int m_GroundContactCount = 0, m_SteepContactCount = 0;
     private Vector3 m_ContactNormal = Vector3.zero, m_SteepNormal = Vector3.zero;
 
+    private Character m_Character;
     private Rigidbody m_Rigidbody;
 
     public bool OnGround => m_GroundContactCount > 0;
     public bool OnSteep => m_SteepContactCount > 0;
 
     private void Awake() {
+        m_Character = GetComponent<Character>();
         m_Rigidbody = GetComponent<Rigidbody>();
 
         m_MinGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
@@ -37,14 +40,14 @@ public class MovingCharacter : MonoBehaviour {
     }
 
     private void Update() {
-        // Get input
-        m_InputDirection.x = Input.GetAxis("Horizontal");
-        m_InputDirection.y = Input.GetAxis("Vertical");
-        m_InputDirection = Vector2.ClampMagnitude(m_InputDirection, 1.0f);
+        var inputDirection = m_Character.MoveDirection;
+        m_DesiredVelocity.x = inputDirection.x * maxSpeed;
+        m_DesiredVelocity.z = inputDirection.y * maxSpeed;
 
-        //Set desired velocity
-        m_DesiredVelocity.x = m_InputDirection.x * maxSpeed;
-        m_DesiredVelocity.z = m_InputDirection.y * maxSpeed;
+        var lookInputDirection = m_Character.LookDirection;
+        m_DesiredRotation.x = lookInputDirection.x;
+        m_DesiredRotation.z = lookInputDirection.y;
+        m_DesiredRotation.Normalize();
     }
 
     private void FixedUpdate() {
@@ -52,6 +55,7 @@ public class MovingCharacter : MonoBehaviour {
         AdjustVelocity();
         
         m_Rigidbody.velocity = m_Velocity;
+        m_Rigidbody.MoveRotation(Quaternion.LookRotation(m_DesiredRotation));
 
         ClearState();
     }

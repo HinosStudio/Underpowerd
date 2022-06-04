@@ -1,33 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
-using UnityEngine.Events;
-
-[Serializable]
-public class ConnectionEvent : UnityEvent<Connector> { }
 
 public class ConnectionPoint : MonoBehaviour {
+    [SerializeField] private Transform connectionPoint;
     [SerializeField] private int maxConnections = 1;
 
-    private Transform m_Transform;
     private readonly List<Connector> m_Connections = new List<Connector>();
 
-    public ConnectionEvent connectEvent = new ConnectionEvent();
-    public ConnectionEvent disconnectEvent = new ConnectionEvent();
+    public ConnectionEvent onConnectEvent = new ConnectionEvent();
+    public ConnectionEvent onDisconnectEvent = new ConnectionEvent();
 
-    public Vector3 Point => m_Transform.position;
+    public Vector3 Point => connectionPoint.position;
     public ReadOnlyCollection<Connector> Connections => m_Connections.AsReadOnly();
-
-    private void Awake() {
-        m_Transform = GetComponent<Transform>();
-    }
 
     public bool AddConnector(Connector other) {
         if (m_Connections.Count < maxConnections && !m_Connections.Contains(other)) {
-            m_Connections.Add(other);
-            connectEvent.Invoke(other);
-            return true;
+            if (other.ConnectToObject(this)) {
+                m_Connections.Add(other);
+                onConnectEvent.Invoke(other);
+                return true;
+            }
         }
 
         return false;
@@ -35,8 +28,9 @@ public class ConnectionPoint : MonoBehaviour {
 
     public bool RemoveConnector(Connector other) {
         if (m_Connections.Contains(other)) {
+            other.DisconnectFromObject(this);
             m_Connections.Remove(other);
-            disconnectEvent.Invoke(other);
+            onDisconnectEvent.Invoke(other);
             return true;
         }
 

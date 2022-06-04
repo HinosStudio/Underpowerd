@@ -4,28 +4,32 @@ using UnityEngine;
 
 [RequireComponent(typeof(Battery))]
 [RequireComponent(typeof(ConnectionPoint))]
-[RequireComponent(typeof(ChargeStation))]
-public class Generator : MonoBehaviour, IInteractable, IAreaCallback {
+public class NegativeChargeStation : ChargeStation, IInteractable, IAreaCallback {
+
+    [Header("GUI")]
+    [SerializeField] private ProgressBar progress;
     
-    private Battery m_Battery;
     private ConnectionPoint m_ConnectionPoint;
     private ChargeStation m_ChargeStation;
 
-    private void Awake() {
-        m_Battery = GetComponent<Battery>();
+    protected override void Awake() {
+        base.Awake();
         m_ConnectionPoint = GetComponent<ConnectionPoint>();
         m_ChargeStation = GetComponent<ChargeStation>();
     }
 
-    private void Update() {
-        foreach (Battery battery in m_ChargeStation.Batteries) {
-            Battery.TransferCharge(m_Battery, battery, Time.deltaTime);
-        }
+    private void LateUpdate() {
+        progress.Value = m_Battery.Charge;
+    }
+
+    protected override void TransferCharge(Battery target) {
+        Battery.TransferCharge(target, m_Battery, Time.deltaTime * 2);
     }
 
     public void Interact(GameObject src) {
         Debug.Log($"{this.name}: started interaction with {src.name}", this);
-        src.GetComponent<Connector>()?.ConnectToPoint(m_ConnectionPoint);
+        var connector = src.GetComponent<Connector>();
+        if(connector) m_ConnectionPoint.AddConnector(connector);
     }
 
     public void OnAreaEnter(GameObject obj) {
@@ -36,3 +40,5 @@ public class Generator : MonoBehaviour, IInteractable, IAreaCallback {
         obj.GetComponent<InteractionController>()?.Unregister(this);
     }
 }
+
+

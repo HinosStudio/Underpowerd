@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class Battery : MonoBehaviour {
-    [SerializeField] private float initialCharge = 50.0f;
-    [SerializeField] private float maxCharge = 100.0f;
+    public float initialCharge = 50.0f;
+    public float maxCharge = 100.0f;
 
     // TODO: Add overcharge
     // [SerializeField] private float overcharge = 0;
@@ -12,6 +12,7 @@ public class Battery : MonoBehaviour {
     private bool depleted = false;
     public float Charge { get; private set; }
 
+    // Events
     public UnityEvent OnBatteryDepleted = new UnityEvent();
     public UnityEvent OnBatteryAugmented = new UnityEvent();
 
