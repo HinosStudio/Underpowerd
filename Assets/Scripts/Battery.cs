@@ -5,26 +5,27 @@ using UnityEngine.Events;
 public class Battery : MonoBehaviour {
     public float initialCharge = 50.0f;
     public float maxCharge = 100.0f;
+    public float charge;
 
     // TODO: Add overcharge
     // [SerializeField] private float overcharge = 0;
 
     private bool depleted = false;
-    public float Charge { get; private set; }
 
     // Events
     public UnityEvent OnBatteryDepleted = new UnityEvent();
     public UnityEvent OnBatteryAugmented = new UnityEvent();
 
-    public float ToFull => Mathf.Max(0, maxCharge - Charge);
+    public float ToFull => Mathf.Max(0, maxCharge - charge);
+    public bool Depleted => charge <= 0;
 
     private void Awake() {
-        Charge = initialCharge;
+        charge = initialCharge;
     }
 
     public void AddCharge(float value) {
-        Charge += value;
-        Charge = Mathf.Min(Charge, maxCharge);
+        charge += value;
+        charge = Mathf.Min(charge, maxCharge);
     }
 
     public float RemoveCharge(float value) {
@@ -33,10 +34,10 @@ public class Battery : MonoBehaviour {
             return 0;
         }
 
-        var res = Mathf.Min(Charge, value);
-        Charge -= res;
+        var res = Mathf.Min(charge, value);
+        charge -= res;
 
-        if (!depleted && Charge <= 0) {
+        if (!depleted && charge <= 0) {
             depleted = true;
             OnBatteryDepleted.Invoke();
         }

@@ -1,5 +1,7 @@
 # Character
 
+A character is an entity in the game. That has stats, 
+
 ## Attributes
 
 - capacity, the max charge limit of the battery
@@ -14,6 +16,9 @@
 - A character can be invincible.
 
 ---
+
+- Characters consume power
+-
 
 - A character has a battery.
 - The max-charge of the battery is influenced by the capacity stat.
@@ -43,28 +48,96 @@
 
 ```C#
 
-class Character {
-    private Stat capacity;
-    private Stat consumption;
-    private Stat agility;
+enum RarityType {
+    NONE, COMMON, UNCOMMON, RARE, LEGENDARY, UNIQUE
+}
+
+class ModChip {
+    private RarityType rarity;
+}
+
+class Loadout : ScriptableObject {
+    private string name;
+    private string description;
+
+    // Battery
+    private float batteryCapacity;
+    private float powerConsumption;
+    private float maxOvercharge;
+    private bool overloadImmunity;
+    
+    // Mobility
+    private float agility;
+
+    // Status Conditions
+    private float burnThreshold;
+    private float burnResistance;
+    private float burnRecovery;
+    private bool burnImmunity;
+
+    private float freezeThreshold;
+    private float freezeResistance;
+    private float freezeRecovery;
+    private bool freezeImmunity;
+
+    private float stunThreshold;
+    private float stunResistance;
+    private float stunRecovery;
+    private bool stunImmunity;
+
+    // Equipment
+    private Weapon weapon;
+    private object[] traits;
+}
+
+class Character : Monobehaviour, IFlammable, IFreezable, IStunnable, IDestroyable {
+    [SerializeField] private Battery battery;
+
+    private Stat batteryCapacity;   // Health
+    private Stat powerConsumption;  // Decay
+    private Stat agility;           // Speed
 
     private bool dead;
     private bool invincible;
-
-    private Battery battery;
-    private Weapon weapon;
     
     event onDeath;
 
-    public void Move(Vector2 input) { }
+    private void Awake(){
+        Initialize();
+    }
 
-    public void Die() { }
+    private void Initialize(){
+        _battery.capacity = capacity.value;
+        _battery.charge = capacity.value * Settings.initialChargePercent;
+        dead = false;
+    }
 
-    public void Attack(Vector2 input) {}
-
-    public void TakeHit(float damage) {}
-
-    public void TakeDamage(float amount) {}
+    public void Destroy(string message) {
+        if(!dead){
+            dead = true;
+            onDeath.invoke(message);
+        }
+    }
 }
+
+[RequireComponent(typeof(Character), typeof(battery))]
+class PowerConsumingCharacter : Monobehaviour {
+    private Character _character;
+    private Battery _battery;
+
+    private void Awake(){
+        _character = GetComponent<Character>();
+        _battery = GetComponent<Battery>();
+    }
+
+    private void Update(){
+        _battery.RemoveCharge(_character.powerConsumption);
+        if(_battery.IsDepleted) {
+            _character.Destroy("Battery depleted");
+        }
+    }
+}
+
+
 
 ```

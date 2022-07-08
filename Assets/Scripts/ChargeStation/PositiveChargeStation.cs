@@ -19,7 +19,7 @@ public class PositiveChargeStation : ChargeStation, IInteractable, IAreaCallback
     }
 
     private void LateUpdate() {
-        progress.Value = m_Battery.Charge;
+        progress.Value = m_Battery.charge;
     }
 
     protected override void TransferCharge(Battery target) {

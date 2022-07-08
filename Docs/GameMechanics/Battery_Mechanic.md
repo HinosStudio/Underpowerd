@@ -7,25 +7,20 @@
 
 ```C#
 
-class Battery {
+public class Battery : MonoBehaviour {
+    [SerializeField] private float initialCharge;
+    [SerializeField] private float maxCharge;
+
     private float charge;
-    private float initialCharge;
-    private float maxCharge;
 
-    private float overCharge;
-    private float maxOverCharge;
+    private void Start() {
+        // initialize values
+    }
 
-    event Depleted;
-    event Augmented;
+    public float AddCharge(float value) { }
 
-    public Battery(float initial, float maxCharge, float maxOverCharge, float decay = 0) { }
+    public float RemoveCharge(float value) { }
 
-    // Methods
-    public void AddCharge(float value) { }
-
-    public void RemoveCharge(float value) { }
-
-    // Procedures
     public static void TransferCharge(Battery src, Battery target, float value) { }
 
     public static void NormalizeCharge(Battery src, Battery target) { }

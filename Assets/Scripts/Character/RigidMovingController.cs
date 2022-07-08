@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Character), typeof(Rigidbody))]
-public class RigidMovingCharacter : MonoBehaviour {
+[RequireComponent(typeof(Rigidbody))]
+public class RigidMovingController : MonoBehaviour {
     [SerializeField] private float maxSpeed = 5.0f;
     [SerializeField] private float maxAcceleration = 10.0f;
     [SerializeField] private float maxGroundAngle = 25.0f;
@@ -25,29 +25,16 @@ public class RigidMovingCharacter : MonoBehaviour {
     private int m_GroundContactCount = 0, m_SteepContactCount = 0;
     private Vector3 m_ContactNormal = Vector3.zero, m_SteepNormal = Vector3.zero;
 
-    private Character m_Character;
     private Rigidbody m_Rigidbody;
 
     public bool OnGround => m_GroundContactCount > 0;
     public bool OnSteep => m_SteepContactCount > 0;
 
     private void Awake() {
-        m_Character = GetComponent<Character>();
         m_Rigidbody = GetComponent<Rigidbody>();
 
         m_MinGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
         m_MinStairDotProduct = Mathf.Cos(maxStairAngle * Mathf.Deg2Rad);
-    }
-
-    private void Update() {
-        var inputDirection = m_Character.MoveDirection;
-        m_DesiredVelocity.x = inputDirection.x * maxSpeed;
-        m_DesiredVelocity.z = inputDirection.y * maxSpeed;
-
-        var lookInputDirection = m_Character.LookDirection;
-        m_DesiredRotation.x = lookInputDirection.x;
-        m_DesiredRotation.z = lookInputDirection.y;
-        m_DesiredRotation.Normalize();
     }
 
     private void FixedUpdate() {

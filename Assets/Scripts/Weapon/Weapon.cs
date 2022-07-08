@@ -1,27 +1,39 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public abstract class Weapon : MonoBehaviour {
-    [SerializeField] private float damage;
-    [SerializeField] private float range;
+    [SerializeField] private float damage = 10.0f;
     [SerializeField] private float fireRate = 5.0f;
+    [SerializeField] private float cost = 1.0f;
 
     private float nextShotTime = 0.0f;
 
-    protected Transform m_Transform;
+    private Battery _battery;
+    private Transform _transform;
 
-    public float Damage => damage;
-    public float Range => range;
+    protected Vector3 Position => _transform.position;
+    protected Vector3 Forward => _transform.forward;
 
     private void Awake() {
-        m_Transform = GetComponent<Transform>();
+        _battery = GetComponent<Battery>();
+        _transform = GetComponent<Transform>();
     }
 
-    protected abstract void Shoot();
+    protected abstract HitDetector[] QueryTargets();
 
     public void Fire() {
         if(Time.time >= nextShotTime) {
-            Shoot();
+            var targets = QueryTargets();
+            foreach(HitDetector target in targets) {
+                target.Hit(this.gameObject, damage, ElementType.NONE);
+            }
+
+            _battery.RemoveCharge(cost);
+            if (_battery.Depleted) {
+                Debug.Log($"[Weapon] {this.name}, has been detroyed");
+            }
+
             nextShotTime = Time.time + 1 / fireRate;
         }
     }

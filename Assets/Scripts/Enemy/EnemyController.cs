@@ -1,56 +1,60 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.StatePattern;
+using System;
+using UnityEngine;
 using UnityEngine.AI;
+
+using EnemyState = IState<EnemyController>;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyController : MonoBehaviour {
     [SerializeField] private Transform target;
 
-    private NavMeshAgent m_NavMeshAgent;
+    private StateMachine<EnemyController> _stateMachine;
+
+    private NavMeshAgent _navMeshAgent;
+
+    public StateMachine<EnemyController> StateMachine => _stateMachine;
 
     private void Awake() {
-        m_NavMeshAgent = GetComponent<NavMeshAgent>();
+        _navMeshAgent = GetComponent<NavMeshAgent>();
+
+        _stateMachine = new StateMachine<EnemyController>(this);
+        _stateMachine.CurrentState = new ChasingEnemyState();
     }
 
     private void Update() {
-        m_NavMeshAgent.SetDestination(target.position);
-    }
-}
-
-public class StateMachine {
-    private EnemyState m_GlobalState;
-    private EnemyState m_CurrentState;
-    
-    public void Update(EnemyController source) {
-        m_GlobalState.Update(source);
-        m_CurrentState.Update(source);
+        _stateMachine.Update();
     }
 
-    public void ChangeState(EnemyController source, EnemyState state) {
-        m_CurrentState?.OnExit(source);
-        m_CurrentState = state;
-        m_CurrentState?.OnEnter(source);
+    public void MoveTowardsTarget() {
+        _navMeshAgent.SetDestination(target.position);
     }
-}
-
-public class EnemyState {
-
-    public virtual void OnEnter(EnemyController source) { }
-
-    public virtual void OnExit(EnemyController source) { }
-
-    public virtual void Update(EnemyController source) { }
 }
 
 public class ChasingEnemyState : EnemyState {
+    public void OnEnter(EnemyController source) {
+        
+    }
 
-    public override void Update(EnemyController source) {
+    public void OnExit(EnemyController source) {
+        source.MoveTowardsTarget();
+    }
+
+    public void OnUpdate(EnemyController source) {
 
     }
 }
 
 public class AttackingEnemyState : EnemyState {
+    public void OnEnter(EnemyController source) {
 
-    public override void Update(EnemyController source) {
+    }
+
+    public void OnExit(EnemyController source) {
+
+    }
+
+    public void OnUpdate(EnemyController source) {
         
     }
 }

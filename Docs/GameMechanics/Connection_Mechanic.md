@@ -12,25 +12,50 @@
 
 ```C#
 
-class Connection {
-    private IConnectable src, target;
+public class Connector : MonoBehaviour {
+    [SerializeField] private int maxConnections;
+    [SerializeField] private ConnectionWire wirePrefab;
 
-    public Connection(IConnectable src, IConnectable target){
-        this.src = src;
-        this.target = target;
+    private ConnectionWire[] _wireInstances;
+    private readonly Dictionary<ConnectionPoint, ConnectionWire> _connections = new Dictionary<ConnectionPoint, ConnectionWire>();
+
+    private void Awake(){
+        // Initialize wire instances
+    }
+
+    public bool ConnectToPoint(ConnectionPoint target) { }
+
+    public bool DisconnectFromPoint(ConnectionPoint target) { }
+}
+
+public class ConnectionPoint : Monobehaviour {
+    [SerializeField] private int maxConnections;
+
+    private readonly List<Connector> _connections = new List<Connector>();
+
+    public ReadOnlyCollection<Connector> Connections => _connections.AsReadOnly;
+
+    public event OnConnectEvent;
+    public event OnDisconnectEvent;
+
+    public bool AddConnection(Connector source) { }
+
+    public bool RemoveConnection(Connector source) { }
+}
+
+[RequireComponent(typeof(ConnectionPoint))]
+public class ConnectionPointDistanceLimiter : MonoBehaviour {
+    [SerializeField, Min(0)] private float maxDistance = 1f;
+
+    private ConnectionPoint _connectionPoint;
+
+    private void Awake(){
+        // GetComponents
+    }
+
+    private void Update(){
+        // Break connection when out of range
     }
 }
-
-interface IConnectCallback {
-    void OnConnect(GameObject other);
-    void OnDisconnect(GameObject other);
-}
-
-class Connector : MonoBehaviour {
-    private GameObject m_Other;
-
-    public void Connect(GameObject other) { }
-}
-
 
 ```
