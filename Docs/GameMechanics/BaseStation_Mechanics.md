@@ -1,41 +1,17 @@
 # Base Station Mechanics
 
-- Base station has a battery
-- Base station has a connection point
-- Base station has a trigger area
+Base stations work as save points for the player.
+Base stations recharge the battery of the player.
 
-- Base station can be interacted with
+Interacting with the base station will recharge the battery of the player and reset the dungeon, a menu will open allowing the player to save the game or travel to other unlocked base stations.
 
 ```C#
 
-public class BaseStation : MonoBehaviour, IInteractCallback IConnectCallback {
-    [SerializeField] private float connectionRange;
+public class BaseStation : MonoBehaviour, IInteractionHandler
+{
     
-    [SerializeField] private Battery battery;
-    [SerializeField] private ConnectionPoint connectionPoint;
-    [SerializeField] private RegisterInteractableTriggerArea triggerArea;
-
-    private readonly Dictionary<Connector, Battery> _connectedBatteries;
-
-    private void Awake() {
-        triggerArea.Interactable = this;
-    }
-
-    private void Update() {
-        // Transfer charge from connected batteries
-        // Check if any connections are out of range
-    }
-
-    public void OnInteract(GameObject src) {
-        // Try to start a connection with src
-    }
-
-    public void OnConnect(Connector other) {
-        // Add battery to connected batteries
-    }
-
-    public void OnDisconnect(Connector other) {
-        // Remove battery from connected batteries
+    public void HandleInteraction() {
+        
     }
 }
 
