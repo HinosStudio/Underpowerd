@@ -13,8 +13,8 @@ public class Battery : MonoBehaviour {
     private bool depleted = false;
 
     // Events
-    public UnityEvent OnBatteryDepleted = new UnityEvent();
-    public UnityEvent OnBatteryAugmented = new UnityEvent();
+    public UnityEvent OnBatteryDepleted = new();
+    public UnityEvent OnBatteryAugmented = new();
 
     public float ToFull => Mathf.Max(0, maxCharge - charge);
     public bool Depleted => charge <= 0;

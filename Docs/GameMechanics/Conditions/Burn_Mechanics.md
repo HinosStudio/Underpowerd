@@ -40,18 +40,14 @@ public class Burnable : MonoBehaviour, IHitCallback {
     }
 }
 
-public class Player : MonoBehaviour, IBurnable {
-    float BurnThreshold { get; }
-    float BurnResistance { get; }
-    float BurnRecovery { get; }
+public class BurnEffect : DurableEffect {
 
-    public override bool CanBurn(){
+    public BurnEffect(float duration) : base(duration){
 
     }
 
-    public override void BurnTick(){
-        // Reduce battery charge
-        // If battery depleted, kill with burn message
+    public override void OnTick() {
+        
     }
 }
 

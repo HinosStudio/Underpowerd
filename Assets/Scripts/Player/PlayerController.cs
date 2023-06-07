@@ -1,150 +1,193 @@
-using System.Collections;
 using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.AI;
 using Assets.Scripts;
 using Assets.Scripts.HitDetection;
-using Assets.Scripts.Conditions.Burning;
+using Assets.Scripts.Movement;
+using hinos;
+using System.Collections.Generic;
 
-[RequireComponent(typeof(CharacterController))]
-public partial class PlayerController : MonoBehaviour, IHitCallback, IBurnable  {
-    [SerializeField] private float batteryCapacity;
-    [SerializeField] private float powerConsumption;
-    [SerializeField] private float mobility;
-    [SerializeField] private float resistance;
+[RequireComponent(typeof(PlayerInput), typeof(RigidMovingController))]
+public partial class PlayerController : MonoBehaviour, IStateMachine<PlayerController>, IHitCallback  {
+    [SerializeField] private float mainHealthCapacity;
+    [SerializeField] private float altHealthCapacity;
 
     [Header("Burn Properties")]
     [SerializeField] private bool burnImmunity = false;
     [SerializeField] private float burnThreshold = 10f;
     [SerializeField] private float burnResistance = 1f;
     [SerializeField] private float burnRecovery = 3f;
-    [Space]
-
-    [SerializeField] private ProgressBar charge;
-
-    [SerializeField] private Battery battery;
-
-    [Header("Lives")]
-    [SerializeField] private int lives = 0;
-
-    private Vector2 _lookValue;
-
-    private PlayerInput _playerInput;
-    
-    private Character _character;
-    private Weapon _weapon;
-
-    private InteractionController _interactionController;
-    private NavMeshAgent _navMeshAgent;
+    private float burnValue = 0;
 
     [Header("Movement")]
-    [SerializeField] private float maxAcceleration;
-    [SerializeField] private float maxSpeed;
-    private Vector3 _velocity;
-    private Vector3 _desiredVelocity;
-    private Vector2 _moveDirection;
-    private CharacterController _characterController;
+    [SerializeField] private float maxSpeed = 5f;
+    [SerializeField] private float maxAcceleration = 10f;
 
-    private void Awake() {
-        _characterController = GetComponent<CharacterController>();
+    class PlayerInputHandler {
+        public readonly PlayerInput input;
+        public readonly InputAction moveAction;
+        public readonly InputAction lookAction;
+        public readonly InputAction interactInputAction;
 
-        _playerInput = GetComponent<PlayerInput>();
-        _interactionController = GetComponent<InteractionController>();
-        _navMeshAgent = GetComponent<NavMeshAgent>();
+        public PlayerInputHandler(PlayerInput input) {
+            this.input = input;
 
-        _navMeshAgent.updateRotation = false;
-        _navMeshAgent.updatePosition = false;
-        
-        battery.maxCharge = batteryCapacity;
+            moveAction = input.actions["Move"];
+            lookAction = input.actions["Look"];
+            interactInputAction = input.actions["Interact"];
+        }
+
     }
 
-    private void Start() {
-        battery.charge = batteryCapacity * 0.5f;
+    private PlayerInputHandler playerInput;
+    private RigidMovingController _movementController;
+
+    // State
+    private PlayerStateFactory stateFactory;
+    private State<PlayerController> currentState;
+
+    // Health
+    private ResourcePool mainHealthPool;
+    private ResourcePool altHealthPool;
+
+    // Interaction
+    private Interactable interactable;
+    private bool interacting;
+    private float holdTime;
+
+    private void Awake() {
+        _movementController = GetComponent<RigidMovingController>();
+
+        // State
+        stateFactory = new PlayerStateFactory(this);
+        currentState = stateFactory.GetIdleState();
+
+        // Health
+        mainHealthPool = new ResourcePool(mainHealthCapacity, mainHealthCapacity);
+        altHealthPool = new ResourcePool(altHealthCapacity, altHealthCapacity);
+
+        // Input
+        var c_PlayerInput = GetComponent<PlayerInput>();
+        playerInput = new PlayerInputHandler(c_PlayerInput);
     }
 
     private void Update() {
-        Move();
-        BatteryDecay();
+        ProcessInteraction();
+        ProcessTargeting();
+        ProcessMovement();
+        currentState.Update();
     }
 
-    private void Move() {
-        _velocity = _characterController.velocity;
-        
-        _desiredVelocity.x = _moveDirection.x * maxSpeed;
-        _desiredVelocity.z = _moveDirection.y * maxSpeed;
-        
-        var maxSpeedChange = maxAcceleration * Time.deltaTime;
-
-        _velocity.x = Mathf.MoveTowards(_velocity.x, _desiredVelocity.x, maxSpeedChange);
-        _velocity.z = Mathf.MoveTowards(_velocity.z, _desiredVelocity.z, maxSpeedChange);
-        _velocity.y += Physics.gravity.y * Time.deltaTime;
-
-        _characterController.Move(_velocity * Time.deltaTime);
-    }
-
-    private void BatteryDecay() {
-        battery.RemoveCharge(powerConsumption * Time.deltaTime);
-        if (battery.Depleted) {
-            // TODO: Destroy with message battery depleted
+    private void ProcessInteraction() {
+        if (playerInput.interactInputAction.WasPressedThisFrame()) {
+            interacting = true;
+            holdTime = 0f;
         }
+
+        if (playerInput.interactInputAction.WasReleasedThisFrame()) {
+            interacting = false;
+            holdTime = 0f;
+        }
+
+        if (interacting) {
+            if (interactable.HoldInteract) {
+                holdTime += Time.deltaTime;
+
+                if (holdTime > interactable.HoldDuration) {
+                    interactable.Interact(this.gameObject);
+                    interacting = false;
+                }
+            }
+            else {
+                interactable.Interact(this.gameObject);
+                interacting = false;
+            }
+        }
+    }
+
+    private void ProcessTargeting() {
+        var lookInput = playerInput.lookAction.ReadValue<Vector2>();
+        lookInput.x -= Screen.width * 0.5f;
+        lookInput.y -= Screen.height * 0.5f;
+    }
+
+    private void ProcessMovement() {
+        var moveInput = playerInput.moveAction.ReadValue<Vector2>();
+        moveInput = Vector3.ClampMagnitude(moveInput, 1f);
+        _movementController.Move(moveInput, maxSpeed, maxAcceleration);
     }
 
     public void OnHit(HitData hitData) {
-        battery.RemoveCharge(hitData.damage);
-    }
+        ProcessDamage(hitData.damage, hitData.element);
 
-    #region Burnable Interface
-
-    public float BurnThreshold => burnThreshold;
-
-    public float BurnResistance => burnResistance;
-
-    public float BurnRecovery => burnRecovery;
-
-    public bool CanBurn() {
-        return !burnImmunity;
-    }
-
-    public void BurnTick() {
-        battery.RemoveCharge(10f * Time.deltaTime);
-        if (battery.Depleted) {
-            // TODO: destroy with burn message
-            Debug.Log("Player killed by burn");
+        switch (hitData.element) {
+            case ElementType.HEAT:
+                ProcessHeatEnergy(hitData.damage);
+                break;
+            default:
+                break;
         }
     }
 
-    #endregion
+    private void ProcessDamage(float damage, ElementType type) {
+        if (damage <= 0) return;
 
-    #region InputHandling
+        //TODO: Apply damage modifiers
 
-    public void OnMove(InputAction.CallbackContext value) {
-        _moveDirection = value.ReadValue<Vector2>();
+        var rest = -damage;
+
+        if (rest < 0 && mainHealthPool.Value > 0) {
+            rest = mainHealthPool.ApplyValue(rest);
+            if(rest < 0) {
+                //TODO: Handle main health pool depleted
+            }
+        }
+
+        if (rest < 0 && altHealthPool.Value > 0) {
+            rest = altHealthPool.ApplyValue(rest);
+            if(rest < 0) {
+                //TODO: Handle alt health pool depleted
+            }
+        }
+
+        if (rest < 0) {
+            //TODO: Handle player death
+
+            return; //WARNING: Dont execute the following lines
+            HandleSwitchState(currentState, stateFactory.GetDeadState());
+        }
     }
 
-    public void OnRotate(InputAction.CallbackContext value) {
-        _lookValue = value.ReadValue<Vector2>();
-        _lookValue.x -= Screen.width * 0.5f;
-        _lookValue.y -= Screen.height * 0.5f;
+    private void ProcessHeatEnergy(float amount) {
+        if (amount < 0) return;
+
+        burnValue += amount * burnResistance;
+        if(burnValue >= burnThreshold) {
+            //TODO: Proc burn effect
+        }
     }
 
-    public void OnInteract(InputAction.CallbackContext value) {
-        if(value.started)
-            _interactionController.StartInteraction();
+    public void HandleSwitchState(State<PlayerController> oldState, State<PlayerController> newState) {
+        oldState.Exit();
+        newState.Enter();
+        currentState = newState;
     }
+}
 
-    public void OnFire(InputAction.CallbackContext value) {
-        if (value.started)
-            _weapon.Fire();
+public class Interactable : MonoBehaviour {
+    [SerializeField] private bool holdInteract = true;
+    [SerializeField] private float holdDuration = 1f;
+    [SerializeField] private bool multipleUse = false;
+    [SerializeField] private bool isInteractable = true;
+
+    public InteractionUnityEvent interactionEvent = new();
+
+    public bool IsInteractable { get => isInteractable; }
+    public bool HoldInteract { get => holdInteract; }
+    public float HoldDuration { get => holdDuration; }
+
+    public void Interact(GameObject source) {
+        interactionEvent.Invoke(source);
     }
-
-    public void SetCharacter(Character character) {
-        _character = character;
-    }
-
-    public void SetWeapon(Weapon weapon) {
-        _weapon = weapon;
-    }
-
-    #endregion
 }

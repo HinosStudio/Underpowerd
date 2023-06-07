@@ -2,7 +2,7 @@
 using UnityEngine;
 
 public class InteractionController : MonoBehaviour {
-    private readonly List<IInteractable> m_Interactables = new List<IInteractable>();
+    private readonly List<IInteractable> m_Interactables = new();
 
     public void Register(IInteractable interactable) {
         if (!m_Interactables.Contains(interactable))

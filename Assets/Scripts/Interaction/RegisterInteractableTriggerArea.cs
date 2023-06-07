@@ -6,11 +6,15 @@ namespace Assets.Scripts.Interaction {
         public IInteractable interactable;
 
         public void OnTriggerEnter(Collider other) {
-            other.GetComponent<InteractionController>()?.Register(interactable);
+            var c_OtherInteract = other.GetComponent<InteractionController>();
+            if(c_OtherInteract)
+                c_OtherInteract.Register(interactable);
         }
 
         private void OnTriggerExit(Collider other) {
-            other.GetComponent<InteractionController>()?.Unregister(interactable);
+            var c_OtherInteract = other.GetComponent<InteractionController>();
+            if(c_OtherInteract)
+                c_OtherInteract.Unregister(interactable);
         }
     }
 }
