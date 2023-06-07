@@ -33,7 +33,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Rotate",
+                    "name": "Turn",
                     "type": "Value",
                     "id": "8db70fcd-21fe-4c98-a078-330f31fb263d",
                     "expectedControlType": "Vector2",
@@ -61,6 +61,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
+                    "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c48997e1-83db-4acc-85ef-2eb8f12ee2e7",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
                     "action": "Fire",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -177,6 +188,17 @@
                 },
                 {
                     "name": "",
+                    "id": "a760100e-ea32-4028-a8e5-9a224a618ab9",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "e061c361-7acb-4303-818d-ea2c6a83d51d",
                     "path": "<Keyboard>/z",
                     "interactions": "",
@@ -199,12 +221,34 @@
                 },
                 {
                     "name": "",
+                    "id": "43ccc674-6393-433e-b6c0-ddddd9221c76",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "64c719f2-09e1-4715-a25c-f16128f445fe",
                     "path": "<Mouse>/position",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "Rotate",
+                    "action": "Turn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "318d90ab-b955-4306-8de2-808182310075",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Turn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
